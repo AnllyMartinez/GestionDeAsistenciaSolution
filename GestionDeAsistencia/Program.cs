@@ -1,8 +1,15 @@
+using GestionDeAsistencia.Data;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 builder.Services.AddControllers();
+builder.Services.AddDbContext<GestionAsistenciaContext>(x => x.UseSqlite(connectionString));
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
