@@ -1,55 +1,74 @@
-<nav
-  class="navbar navbar-expand-md bg-dark sticky-top border-bottom"
-  data-bs-theme="dark"
->
-  <div class="container">
-    <a class="navbar-brand d-md-none" href="#">
-      <svg class="bi" width="24" height="24">
-        <use xlink:href="#aperture"></use>
-      </svg>
-      Gestion Asistencia
+<nav class="navbar navbar-expand-lg rounded shadow-sm">
+  <div class="container-fluid">
+    <a class="navbar-brand d-flex align-items-center" href="#">
+      <img
+        src="sena.png"
+        alt="sena-logo"
+        width="40"
+        class="d-inline-block align-middle"
+      />
+      <span class="ms-2">Sistema de Control</span>
     </a>
     <button
       class="navbar-toggler"
       type="button"
-      data-bs-toggle="offcanvas"
-      data-bs-target="#offcanvas"
-      aria-controls="offcanvas"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbar"
+      aria-controls="navbar"
+      aria-expanded="false"
       aria-label="Toggle navigation"
     >
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div
-      class="offcanvas offcanvas-end"
-      tabindex="-1"
-      id="offcanvas"
-      aria-labelledby="offcanvasLabel"
-    >
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasLabel">Gestion Asistencia</h5>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="offcanvas"
-          aria-label="Close"
-        ></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav flex-grow-1 justify-content-between">
-          <li class="nav-item"><a class="nav-link" href="#">Dashboard</a></li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Registrar asistencia</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="#">Admin Usuarios</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link d-flex gap-2 align-items-center" href="#">
-              <i class="fa fa-user"></i>
-              Iniciar sesion
-            </a>
-          </li>
-        </ul>
+
+    <div class="collapse navbar-collapse" id="navbar">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [routerLink]="['/']"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Inicio</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/asistencia" routerLinkActive="active"
+            >Asistencia</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/horas-laborales"
+            routerLinkActive="active"
+            >Horas Laborales</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" routerLink="/admin" routerLinkActive="active"
+            >Administración</a
+          >
+        </li>
+      </ul>
+
+      <div class="d-flex align-items-center">
+        <div class="dropdown me-3">
+          <a
+            class="nav-link dropdown-toggle text-muted"
+            href="#"
+            data-bs-toggle="dropdown"
+            aria-expanded="false"
+            >Usuario</a
+          >
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="#">Desloguearse</a></li>
+          </ul>
+        </div>
+
+        <button type="button" class="btn btn-outline-dark">
+          Iniciar sesión
+        </button>
       </div>
     </div>
   </div>

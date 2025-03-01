@@ -4,8 +4,6 @@ import { Component } from '@angular/core';
   selector: 'app-barra-navegacion',
   standalone: false,
   templateUrl: './barra-navegacion.component.html',
-  styleUrl: './barra-navegacion.component.css'
+  styleUrl: './barra-navegacion.component.css',
 })
-export class BarraNavegacionComponent {
-
-}
+export class BarraNavegacionComponent {}

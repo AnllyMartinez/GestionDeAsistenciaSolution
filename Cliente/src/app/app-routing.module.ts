@@ -1,10 +1,31 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AsistenciaComponent } from './asistencia/asistencia.component';
+import { HorasLaboralesComponent } from './horas-laborales/horas-laborales.component';
+import { InicioComponent } from './inicio/inicio.component';
+import { AdminComponent } from './admin/admin.component';
+import { InicioSesionComponent } from './inicio-sesion/inicio-sesion.component';
+import { AutenticacionGuard } from './servicios/autenticacion.guard';
 
-const routes: Routes = [];
+const routes: Routes = [
+  { path: '', component: InicioComponent },
+  {
+    path: 'inicio-sesion',
+    component: InicioSesionComponent,
+  },
+  { path: 'inicio', component: InicioComponent },
+  {
+    path: 'asistencia',
+    component: AsistenciaComponent,
+    canActivate: [AutenticacionGuard],
+  },
+  { path: 'horas-laborales', component: HorasLaboralesComponent },
+  { path: 'admin', component: AdminComponent },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
+];
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],
-  exports: [RouterModule]
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
