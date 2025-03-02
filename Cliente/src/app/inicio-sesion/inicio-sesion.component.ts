@@ -15,7 +15,7 @@ export class InicioSesionComponent {
 
   constructor(
     private fb: FormBuilder,
-    private auth: AutenticacionService,
+    private autenticacionService: AutenticacionService,
     private router: Router
   ) {
     this.loginForm = this.fb.group({
@@ -26,7 +26,7 @@ export class InicioSesionComponent {
 
   onSubmit() {
     if (this.loginForm.valid) {
-      this.auth
+      this.autenticacionService
         .iniciarSesion(
           this.loginForm.value.email,
           this.loginForm.value.contraseña
@@ -35,6 +35,8 @@ export class InicioSesionComponent {
           next: () => this.router.navigate(['/attendance']),
           error: () => (this.errorMessage = 'Credenciales inválidas'),
         });
+    } else {
+      this.loginForm.markAllAsTouched();
     }
   }
 }

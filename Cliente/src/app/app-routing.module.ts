@@ -19,8 +19,16 @@ const routes: Routes = [
     component: AsistenciaComponent,
     canActivate: [AutenticacionGuard],
   },
-  { path: 'horas-laborales', component: HorasLaboralesComponent },
-  { path: 'admin', component: AdminComponent },
+  {
+    path: 'horas-laborales',
+    component: HorasLaboralesComponent,
+    canActivate: [AutenticacionGuard],
+  },
+  {
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AutenticacionGuard],
+  },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
 

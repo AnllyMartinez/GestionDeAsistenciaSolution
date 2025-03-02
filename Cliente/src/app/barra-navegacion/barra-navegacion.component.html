@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg rounded shadow-sm">
   <div class="container-fluid">
-    <a class="navbar-brand d-flex align-items-center" href="#">
+    <a class="navbar-brand d-flex align-items-center" routerLink="/">
       <img
         src="sena.png"
         alt="sena-logo"
@@ -53,22 +53,33 @@
       </ul>
 
       <div class="d-flex align-items-center">
-        <div class="dropdown me-3">
-          <a
-            class="nav-link dropdown-toggle text-muted"
-            href="#"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-            >Usuario</a
+        <ng-container *ngIf="usuarioActual$ | async">
+          <div class="dropdown me-3">
+            <a
+              class="nav-link dropdown-toggle text-muted"
+              href="#"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              >Bienvenid&#64; {{ (usuarioActual$ | async).nombre }}</a
+            >
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#" (click)="onCerrarSesion()"
+                  >Cerrar sesion</a
+                >
+              </li>
+            </ul>
+          </div>
+        </ng-container>
+        <ng-container *ngIf="(usuarioActual$ | async) === null">
+          <button
+            type="button"
+            class="btn btn-outline-dark"
+            routerLink="/inicio-sesion"
           >
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Desloguearse</a></li>
-          </ul>
-        </div>
-
-        <button type="button" class="btn btn-outline-dark">
-          Iniciar sesión
-        </button>
+            Iniciar sesión
+          </button>
+        </ng-container>
       </div>
     </div>
   </div>

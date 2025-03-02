@@ -30,24 +30,23 @@ namespace GestionDeAsistencia.Controllers
 
             _context.Asistencias.Add(asistencia);
             await _context.SaveChangesAsync();
-            return Ok("Asistencia registrada");
+            return Ok(new { Mensaje = "Asistencia registrada" });
         }
 
         [HttpGet]
-        public async Task<IActionResult> TraerAsistencias([FromQuery] int? usuarioID, [FromQuery] string tipo, [FromQuery] DateTime? fecha)
+        public async Task<IActionResult> TraerAsistencias([FromQuery] int? usuarioID)
         {
             var query = _context.Asistencias.AsQueryable();
             if(usuarioID.HasValue)
                 query = query.Where(a => a.UsuarioID == usuarioID.Value);
-            if(!string.IsNullOrEmpty(tipo))
-                query = query.Where(a => a.Tipo == tipo);
-            if(fecha.HasValue)
-            {
-                var startDate = fecha.Value.Date;
-                var endDate = startDate.AddDays(1);
-                query = query.Where(a => a.FechaHora >= startDate && a.FechaHora < endDate);
-            }
-            var asistencias = await query.ToListAsync();
+
+            //if(fecha.HasValue)
+            //{
+            //    var startDate = fecha.Value.Date;
+            //    var endDate = startDate.AddDays(1);
+            //    query = query.Where(a => a.FechaHora >= startDate && a.FechaHora < endDate);
+            //}
+            var asistencias = await query.OrderByDescending(x => x.FechaHora).ToListAsync();
             return Ok(asistencias);
         }
 

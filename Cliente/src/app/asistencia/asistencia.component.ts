@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { AsistenciaService } from '../servicios/asistencia.service';
-
+import { AutenticacionService } from '../servicios/autenticacion.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-asistencia',
@@ -9,22 +10,75 @@ import { AsistenciaService } from '../servicios/asistencia.service';
   styleUrl: './asistencia.component.css',
 })
 export class AsistenciaComponent {
-  mensaje: string;
+  mensaje: string = '';
   historialAsistencia: any[] = [];
+  usuarioActualId: number = 0;
+  private autenticacionSub!: Subscription;
 
-  constructor(private asistenciaService: AsistenciaService) {}
+  constructor(
+    private asistenciaService: AsistenciaService,
+    private autenticacionService: AutenticacionService
+  ) {}
 
-  registrarEntrada() {
-    this.asistenciaService.registrarAsistencia({ Tipo: 'Entrada' }).subscribe({
-      next: () => (this.mensaje = 'Entrada registrada exitosamente'),
-      error: () => (this.mensaje = 'Error al registrar la entrada'),
+  ngOnInit(): void {
+    this.autenticacionSub = this.autenticacionService.usuarioActual$.subscribe({
+      next: (usuario) => {
+        if (usuario) {
+          this.usuarioActualId = usuario.usuarioID;
+          this.cargarHistorial();
+        } else {
+          this.usuarioActualId = null;
+          this.historialAsistencia = [];
+        }
+      },
+      error: (err) =>
+        console.error('Error en suscripción de autenticación:', err),
     });
   }
 
-  registrarSalida() {
-    this.asistenciaService.registrarAsistencia({ Tipo: 'Salida' }).subscribe({
-      next: () => (this.mensaje = 'Salida registrada exitosamente'),
-      error: () => (this.mensaje = 'Error al registrar la salida'),
+  cargarHistorial(): void {
+    this.asistenciaService
+      .obtenerAsistencias({ usuarioID: this.usuarioActualId })
+      .subscribe({
+        next: (data) => {
+          this.historialAsistencia = data.map((item) => ({
+            ...item,
+            fecha: new Date(item.fechaHora).toLocaleDateString(),
+            hora: new Date(item.fechaHora).toLocaleTimeString(),
+          }));
+        },
+        error: (err) => {
+          this.mensaje = 'Error al cargar el historial';
+          console.error(err);
+        },
+      });
+  }
+
+  registrarEntrada(): void {
+    this.registrarAsistencia('Entrada');
+  }
+
+  registrarSalida(): void {
+    this.registrarAsistencia('Salida');
+  }
+
+  private registrarAsistencia(tipo: string): void {
+    const data = {
+      UsuarioID: this.usuarioActualId,
+      Tipo: tipo,
+      RegistradoPor: this.usuarioActualId,
+    };
+
+    this.asistenciaService.registrarAsistencia(data).subscribe({
+      next: () => {
+        this.cargarHistorial();
+        this.mensaje = `Asistencia de registrada correctamente`;
+        setTimeout(() => (this.mensaje = ''), 3000);
+      },
+      error: (err) => {
+        this.mensaje = `Error al registrar ${tipo.toLowerCase()}`;
+        console.error(err);
+      },
     });
   }
 }

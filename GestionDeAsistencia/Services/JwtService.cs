@@ -8,27 +8,25 @@ namespace GestionDeAsistencia.Services
     public class JwtService
     {
         private readonly string _secret;
-        private readonly double _expirationMinutos;
 
         public JwtService(IConfiguration configuration)
         {
             _secret = configuration["Jwt:Key"];
-            _expirationMinutos = double.Parse(configuration["Jwt:ExpirationMinutes"] ?? "60");
         }
 
         public string GenerarToken(string email, int userId, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_secret);
+            var key = Encoding.UTF8.GetBytes(_secret);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.Name, email),
+                    new Claim(ClaimTypes.Email, email),
                     new Claim("UsuarioID", userId.ToString()),
                     new Claim(ClaimTypes.Role, role)
                 }),
-                Expires = DateTime.UtcNow.AddMinutes(_expirationMinutos),
+                Expires = DateTime.UtcNow.AddDays(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

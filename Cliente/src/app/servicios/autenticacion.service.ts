@@ -1,37 +1,66 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { Router } from '@angular/router';
+import { BehaviorSubject, map, Observable, of, ReplaySubject, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AutenticacionService {
-  private tokenKey = 'authToken';
   private authUrl = 'https://localhost:5001/api/Autenticacion';
-  public isAuthenticated = new BehaviorSubject<boolean>(false);
+  public inicioSesion = new BehaviorSubject<boolean>(false);
+  private usuarioActualSource = new ReplaySubject<any>(1);
+  usuarioActual$ = this.usuarioActualSource.asObservable();
+  private usuarioActualId?: number;
 
-  constructor(private http: HttpClient) {
-    const token = localStorage.getItem(this.tokenKey);
-    this.isAuthenticated.next(!!token);
+  constructor(private http: HttpClient, private router: Router) {
+    const token = localStorage.getItem('token');
+    this.inicioSesion.next(!!token);
+  }
+
+  cargarUsuarioActual(token) {
+    if (token === null) {
+      this.usuarioActualSource.next(null);
+      return of(null);
+    }
+    let headers = new HttpHeaders();
+    headers = headers.set('Authorization', `Bearer ${token}`);
+
+    return this.http.get(this.authUrl, { headers }).pipe(
+      map((usuario: any) => {
+        if (usuario) {
+          localStorage.setItem('token', usuario.token);
+          this.usuarioActualSource.next(usuario);
+        }
+      })
+    );
   }
 
   iniciarSesion(email: string, contrasena: string): Observable<any> {
     return this.http
       .post<any>(`${this.authUrl}/login`, { email, contrasena })
       .pipe(
-        tap((response) => {
-          localStorage.setItem(this.tokenKey, response.token);
-          this.isAuthenticated.next(true);
+        tap((respuesta) => {
+          localStorage.setItem('token', respuesta.token);
+          this.usuarioActualId = respuesta.usuarioID;
+          this.inicioSesion.next(true);
+          this.usuarioActualSource.next(respuesta);
         })
       );
   }
 
   cerrarSesion() {
-    localStorage.removeItem(this.tokenKey);
-    this.isAuthenticated.next(false);
+    localStorage.removeItem('token');
+    this.inicioSesion.next(false);
+    this.usuarioActualSource.next(false);
+    this.router.navigate(['/inicio-sesion']);
   }
 
   obtenerToken() {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem('token');
+  }
+
+  obtenerUsuarioID() {
+    return this.usuarioActualId;
   }
 }
