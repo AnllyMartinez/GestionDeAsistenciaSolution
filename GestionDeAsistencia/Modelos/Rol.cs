@@ -8,8 +8,8 @@ namespace GestionDeAsistencia.Modelos
         public int RolID { get; set; }
 
         [Required]
-        public string NombreRol { get; set; }
+        public string? NombreRol { get; set; }
 
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
     }
 }

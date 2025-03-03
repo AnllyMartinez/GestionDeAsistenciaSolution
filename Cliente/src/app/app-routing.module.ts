@@ -18,16 +18,19 @@ const routes: Routes = [
     path: 'asistencia',
     component: AsistenciaComponent,
     canActivate: [AutenticacionGuard],
+    data: { rolEsperado: 'Estudiante' },
   },
   {
     path: 'horas-laborales',
     component: HorasLaboralesComponent,
     canActivate: [AutenticacionGuard],
+    data: { rolEsperado: 'Profesor' },
   },
   {
     path: 'admin',
     component: AdminComponent,
     canActivate: [AutenticacionGuard],
+    data: { rolEsperado: 'Admin' },
   },
   { path: '**', redirectTo: '', pathMatch: 'full' },
 ];

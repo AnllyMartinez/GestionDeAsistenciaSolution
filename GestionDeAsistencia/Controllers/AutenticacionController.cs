@@ -50,6 +50,7 @@ namespace GestionDeAsistencia.Controllers
                 UsuarioID = usuario.UsuarioID,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
+                Rol = usuario.Rol.NombreRol,
                 Token = _jwtService.GenerarToken(usuario.Email, usuario.UsuarioID, usuario.Rol.NombreRol)
             };
 
@@ -72,10 +73,26 @@ namespace GestionDeAsistencia.Controllers
                 UsuarioID = usuario.UsuarioID,
                 Nombre = usuario.Nombre,
                 Email = usuario.Email,
+                Rol = usuario.Rol.NombreRol,
                 Token = token
             };
 
             return Ok(usuarioDto);
+        }
+
+        [HttpPut("actualizarContrasena/{id}")]
+        public async Task<IActionResult> ActualizarPassword(int id, [FromBody] ActualizarContrasenaDto dto)
+        {
+            var usuario = await _context.Usuarios.FindAsync(id);
+            if(usuario == null)
+            {
+                return NotFound(new { Mensaje = "Usuario no encontrado" });
+            }
+
+            usuario.Contraseña = HashContrasena(dto.NuevaContrasena);
+            await _context.SaveChangesAsync();
+
+            return Ok(new { Mensaje = "Contraseña actualizada exitosamente" });
         }
     }
 }

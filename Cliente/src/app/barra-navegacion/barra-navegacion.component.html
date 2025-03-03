@@ -32,12 +32,24 @@
             >Inicio</a
           >
         </li>
-        <li class="nav-item">
+        <li
+          class="nav-item"
+          *ngIf="
+            (usuarioActual$ | async)?.rol === 'Estudiante' ||
+            (usuarioActual$ | async)?.rol === 'Admin'
+          "
+        >
           <a class="nav-link" routerLink="/asistencia" routerLinkActive="active"
             >Asistencia</a
           >
         </li>
-        <li class="nav-item">
+        <li
+          class="nav-item"
+          *ngIf="
+            (usuarioActual$ | async)?.rol == 'Profesor' ||
+            (usuarioActual$ | async)?.rol == 'Admin'
+          "
+        >
           <a
             class="nav-link"
             routerLink="/horas-laborales"
@@ -45,7 +57,7 @@
             >Horas Laborales</a
           >
         </li>
-        <li class="nav-item">
+        <li class="nav-item" *ngIf="(usuarioActual$ | async)?.rol == 'Admin'">
           <a class="nav-link" routerLink="/admin" routerLinkActive="active"
             >Administración</a
           >
@@ -68,6 +80,15 @@
                   >Cerrar sesion</a
                 >
               </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  href="#"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cambiarContrasenaModal"
+                  >Cambiar contraseña</a
+                >
+              </li>
             </ul>
           </div>
         </ng-container>
@@ -84,3 +105,54 @@
     </div>
   </div>
 </nav>
+
+<div
+  class="modal fade"
+  id="cambiarContrasenaModal"
+  tabindex="-1"
+  aria-labelledby="cambiarContrasenaModal"
+  aria-hidden="true"
+>
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Cambiar contraseña</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="cambiarContrasenaForm">
+          <div class="mb-3">
+            <label for="nuevaContrasena" class="form-label"
+              >Nueva Contraseña</label
+            >
+            <input
+              type="password"
+              class="form-control"
+              id="nuevaContrasena"
+              formControlName="nuevaContrasena"
+            />
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-danger"
+          (click)="onActualizarContrasena()"
+          data-bs-dismiss="modal"
+        >
+          Actualizar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

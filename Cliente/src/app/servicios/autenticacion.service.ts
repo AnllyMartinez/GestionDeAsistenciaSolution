@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { BehaviorSubject, map, Observable, of, ReplaySubject, tap } from 'rxjs';
+import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
   providedIn: 'root',
@@ -62,5 +63,24 @@ export class AutenticacionService {
 
   obtenerUsuarioID() {
     return this.usuarioActualId;
+  }
+
+  obtenerUsuarioRol(): string | null {
+    const token = this.obtenerToken();
+    if (token) {
+      // Decodificar el token para extraer el rol
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.role;
+    }
+    return null;
+  }
+
+  actualizarContrasena(nuevaContrasena: string) {
+    const usuarioActual = this.obtenerUsuarioID();
+
+    return this.http.put<any>(
+      `${this.authUrl}/actualizarContrasena/${usuarioActual}`,
+      { nuevaContrasena }
+    );
   }
 }

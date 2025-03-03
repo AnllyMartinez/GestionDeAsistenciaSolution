@@ -60,16 +60,38 @@ namespace GestionDeAsistencia.Controllers
 
             _contexto.Usuarios.Add(usuarioModelo);
             await _contexto.SaveChangesAsync();
-            return CreatedAtAction(nameof(CrearUsuario), new { id = usuarioModelo.UsuarioID }, usuario);
+            return CreatedAtAction(nameof(CrearUsuario), new { id = usuarioModelo.UsuarioID }, usuarioModelo);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] Usuario usuario)
+        public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] ActualizarUsuarioDto dto)
         {
-            if(id != usuario.UsuarioID)
-                return BadRequest(new { Mensaje = "El ID no coincide" });
+            var usuarioExistente = await _contexto.Usuarios.FindAsync(id);
+            if(usuarioExistente == null)
+            {
+                return NotFound(new { Mensaje = "Usuario no encontrado" });
+            }
 
-            _contexto.Entry(usuario).State = EntityState.Modified;
+            // Actualizar solo las propiedades que se han enviado 
+            if(!string.IsNullOrEmpty(dto.Nombre))
+            {
+                usuarioExistente.Nombre = dto.Nombre;
+            }
+
+            if(!string.IsNullOrEmpty(dto.Apellido))
+            {
+                usuarioExistente.Apellido = dto.Apellido;
+            }
+
+            if(!string.IsNullOrEmpty(dto.Email))
+            {
+                usuarioExistente.Email = dto.Email;
+            }
+
+            if(dto.RolID.HasValue)
+            {
+                usuarioExistente.RolID = dto.RolID.Value;
+            }
 
             try
             {
@@ -78,11 +100,13 @@ namespace GestionDeAsistencia.Controllers
             catch(DbUpdateConcurrencyException)
             {
                 if(await _contexto.Usuarios.FindAsync(id) == null)
+                {
                     return NotFound(new { Mensaje = "Usuario no encontrado" });
+                }
                 throw;
             }
 
-            return Ok(new { Mensaje = "Usuario Actualizado" });
+            return Ok(new { Mensaje = "Usuario actualizado" });
         }
 
         [HttpDelete("{id}")]
