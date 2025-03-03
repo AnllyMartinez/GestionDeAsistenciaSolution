@@ -13,7 +13,9 @@ export class AsistenciaComponent {
   mensaje: string = '';
   historialAsistencia: any[] = [];
   usuarioActualId: number = 0;
-  private autenticacionSub!: Subscription;
+  private autenticacionSub: Subscription;
+
+  mensajeTipo = 'exito';
 
   constructor(
     private asistenciaService: AsistenciaService,
@@ -70,13 +72,16 @@ export class AsistenciaComponent {
     };
 
     this.asistenciaService.registrarAsistencia(data).subscribe({
-      next: () => {
+      next: (res) => {
         this.cargarHistorial();
-        this.mensaje = `Asistencia de registrada correctamente`;
+        this.mensajeTipo = 'exito';
+        this.mensaje = res.mensaje;
         setTimeout(() => (this.mensaje = ''), 3000);
       },
       error: (err) => {
-        this.mensaje = `Error al registrar ${tipo.toLowerCase()}`;
+        this.mensajeTipo = 'error';
+        this.mensaje =
+          err.error?.mensaje || `Error al registrar ${tipo.toLowerCase()}`;
         console.error(err);
       },
     });

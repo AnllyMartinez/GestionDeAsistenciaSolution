@@ -20,6 +20,20 @@ namespace GestionDeAsistencia.Controllers
         [HttpPost("registrar")]
         public async Task<IActionResult> RegistrarAsistencia([FromBody] RegistrarAsistenciaDto request)
         {
+
+            var hoy = DateTime.Now.Date;
+
+            // Verificar si ya existe una asistencia del mismo tipo en el mismo día
+            bool existeRegistro = await _context.Asistencias
+                .AnyAsync(a => a.UsuarioID == request.UsuarioID &&
+                               a.Tipo == request.Tipo &&
+                               a.FechaHora.Date == hoy);
+
+            if(existeRegistro)
+            {
+                return BadRequest(new { Mensaje = $"Ya existe un registro {request.Tipo} para hoy." });
+            }
+
             var asistencia = new Asistencia
             {
                 UsuarioID = request.UsuarioID,
@@ -30,23 +44,24 @@ namespace GestionDeAsistencia.Controllers
 
             _context.Asistencias.Add(asistencia);
             await _context.SaveChangesAsync();
-            return Ok(new { Mensaje = "Asistencia registrada" });
+            return Ok(new { Mensaje = $"{request.Tipo} registrada" });
         }
 
         [HttpGet]
-        public async Task<IActionResult> TraerAsistencias([FromQuery] int? usuarioID)
+        public async Task<IActionResult> TraerAsistencias([FromQuery] int? usuarioID, [FromQuery] DateTime? fecha)
         {
             var query = _context.Asistencias.AsQueryable();
             if(usuarioID.HasValue)
                 query = query.Where(a => a.UsuarioID == usuarioID.Value);
 
-            //if(fecha.HasValue)
-            //{
-            //    var startDate = fecha.Value.Date;
-            //    var endDate = startDate.AddDays(1);
-            //    query = query.Where(a => a.FechaHora >= startDate && a.FechaHora < endDate);
-            //}
-            var asistencias = await query.OrderByDescending(x => x.FechaHora).ToListAsync();
+            if(fecha.HasValue)
+            {
+                var startDate = fecha.Value.Date;
+                var endDate = startDate.AddDays(1);
+                query = query.Where(a => a.FechaHora >= startDate && a.FechaHora < endDate);
+            }
+
+            var asistencias = await query.OrderByDescending(x => x.FechaHora).Include(x => x.Usuario).ToListAsync();
             return Ok(asistencias);
         }
 

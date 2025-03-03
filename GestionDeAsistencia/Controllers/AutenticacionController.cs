@@ -45,7 +45,6 @@ namespace GestionDeAsistencia.Controllers
             var email = User.FindFirstValue(ClaimTypes.Email);
             var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Email == email);
 
-
             var usuarioDto = new UsuarioDto
             {
                 UsuarioID = usuario.UsuarioID,
@@ -61,8 +60,8 @@ namespace GestionDeAsistencia.Controllers
         public async Task<ActionResult<UsuarioDto>> Login([FromBody] LoginDto login)
         {
             var hashedContrasena = HashContrasena(login.Contrasena);
-            var usuario = await _context.Usuarios.Include(u => u.Rol)
-                                .FirstOrDefaultAsync(u => u.Email == login.Email && u.Contraseña == hashedContrasena);
+            var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Email == login.Email && u.Contraseña == hashedContrasena);
+
             if(usuario == null)
                 return Unauthorized("Credenciales inválidas");
 

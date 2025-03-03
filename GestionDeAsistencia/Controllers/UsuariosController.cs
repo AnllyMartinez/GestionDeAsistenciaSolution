@@ -3,6 +3,8 @@ using GestionDeAsistencia.Dtos.Usuario;
 using GestionDeAsistencia.Modelos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace GestionDeAsistencia.Controllers
 {
@@ -33,28 +35,39 @@ namespace GestionDeAsistencia.Controllers
 
             if(usuario == null)
             {
-                return NotFound("Usuario no encontrado");
+                return NotFound(new { Mensaje = "Usuario no encontrado" });
             }
 
             return Ok(usuario);
         }
 
         [HttpPost]
-        public async Task<IActionResult> CrearUsuario([FromBody] Usuario usuario)
+        public async Task<IActionResult> CrearUsuario([FromBody] CrearUsuarioDto usuario)
         {
             if(!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
+            }
 
-            _contexto.Usuarios.Add(usuario);
+            var usuarioModelo = new Usuario
+            {
+                Nombre = usuario.Nombre,
+                Apellido = usuario.Apellido,
+                Email = usuario.Email,
+                Contraseña = HashContrasena(usuario.Email),
+                RolID = usuario.RolID
+            };
+
+            _contexto.Usuarios.Add(usuarioModelo);
             await _contexto.SaveChangesAsync();
-            return CreatedAtAction(nameof(CrearUsuario), new { id = usuario.UsuarioID }, usuario);
+            return CreatedAtAction(nameof(CrearUsuario), new { id = usuarioModelo.UsuarioID }, usuario);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarUsuario(int id, [FromBody] Usuario usuario)
         {
             if(id != usuario.UsuarioID)
-                return BadRequest("El ID no coincide");
+                return BadRequest(new { Mensaje = "El ID no coincide" });
 
             _contexto.Entry(usuario).State = EntityState.Modified;
 
@@ -65,11 +78,11 @@ namespace GestionDeAsistencia.Controllers
             catch(DbUpdateConcurrencyException)
             {
                 if(await _contexto.Usuarios.FindAsync(id) == null)
-                    return NotFound("Usuario no encontrado");
+                    return NotFound(new { Mensaje = "Usuario no encontrado" });
                 throw;
             }
 
-            return NoContent();
+            return Ok(new { Mensaje = "Usuario Actualizado" });
         }
 
         [HttpDelete("{id}")]
@@ -77,12 +90,12 @@ namespace GestionDeAsistencia.Controllers
         {
             var usuario = await _contexto.Usuarios.FindAsync(id);
             if(usuario == null)
-                return NotFound("Usuario no encontrado");
+                return NotFound(new { Mensaje = "Usuario no encontrado" });
 
             _contexto.Usuarios.Remove(usuario);
             await _contexto.SaveChangesAsync();
 
-            return Ok("Usuario eliminado");
+            return Ok(new { Mensaje = "Usuario eliminado" });
         }
 
         [HttpPut("{id}/rol")]
@@ -91,13 +104,27 @@ namespace GestionDeAsistencia.Controllers
             var usuario = await _contexto.Usuarios.FindAsync(id);
             if(usuario == null)
             {
-                return NotFound("Usuario no encontrado");
+                return NotFound(new { Mensaje = "Usuario no encontrado" });
             }
 
             usuario.RolID = request.RolID;
             await _contexto.SaveChangesAsync();
 
-            return Ok("Rol actualizado");
+            return Ok(new { Mensaje = "Rol actualizado" });
+        }
+
+        private string HashContrasena(string contrasena)
+        {
+            using(SHA256 sha256Hash = SHA256.Create())
+            {
+                var bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(contrasena));
+                var builder = new StringBuilder();
+                foreach(var b in bytes)
+                {
+                    builder.Append(b.ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }

@@ -18,12 +18,18 @@ export class AsistenciaService {
     return this.http.post<any>(`${this.apiUrl}/registrar`, data);
   }
 
-  obtenerAsistencias(filters?: { usuarioID?: number }): Observable<any[]> {
+  obtenerAsistencias(filtro?: {
+    usuarioID?: number;
+    fecha?: Date;
+  }): Observable<any[]> {
     let params = new HttpParams();
 
-    if (filters) {
-      if (filters.usuarioID)
-        params = params.append('usuarioID', filters.usuarioID.toString());
+    if (filtro) {
+      if (filtro.usuarioID)
+        params = params.append('usuarioID', filtro.usuarioID.toString());
+      if (filtro.fecha) {
+        params = params.set('fecha', filtro.fecha.toISOString());
+      }
     }
 
     return this.http.get<any[]>(this.apiUrl, { params });

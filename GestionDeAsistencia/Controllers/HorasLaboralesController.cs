@@ -20,6 +20,16 @@ namespace GestionDeAsistencia.Controllers
         [HttpPost("registrar")]
         public async Task<IActionResult> RegistrarHoras([FromBody] RegistrarHorasLaboradas request)
         {
+            var hoy = DateTime.Now.Date;
+
+            // Verificar si ya existe un registro de horas
+            bool existeRegistro = await _context.HorasLaborales
+                .AnyAsync(a => a.ProfesorID == request.ProfesorID && (a.Fecha.Date) == hoy);
+
+            if(existeRegistro)
+            {
+                return BadRequest(new { Mensaje = $"Ya existe un registro de horas laboradas para hoy." });
+            }
             var totalHoras = (request.HoraFin - request.HoraInicio).TotalHours;
             var registro = new HorasLaborales
             {
@@ -32,7 +42,7 @@ namespace GestionDeAsistencia.Controllers
 
             _context.HorasLaborales.Add(registro);
             await _context.SaveChangesAsync();
-            return Ok("Horas laborales registradas");
+            return Ok(new { Mensaje = $"Horas laborales registradas" });
         }
 
         [HttpGet]
@@ -47,7 +57,7 @@ namespace GestionDeAsistencia.Controllers
                 var endDate = startDate.AddDays(1);
                 query = query.Where(h => h.Fecha >= startDate && h.Fecha < endDate);
             }
-            var registros = await query.ToListAsync();
+            var registros = await query.OrderBy(x => x.Fecha).Include(x => x.Profesor).ToListAsync();
             return Ok(registros);
         }
 
