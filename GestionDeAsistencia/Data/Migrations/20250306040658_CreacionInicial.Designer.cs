@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestionDeAsistencia.Data.Migrations
 {
     [DbContext(typeof(GestionAsistenciaContext))]
-    [Migration("20250227162124_CreacionInicial")]
+    [Migration("20250306040658_CreacionInicial")]
     partial class CreacionInicial
     {
         /// <inheritdoc />
@@ -46,34 +46,6 @@ namespace GestionDeAsistencia.Data.Migrations
                     b.ToTable("Asistencias");
                 });
 
-            modelBuilder.Entity("GestionDeAsistencia.Modelos.HorasLaborales", b =>
-                {
-                    b.Property<int>("RegistroID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Fecha")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("HoraFin")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("HoraInicio")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("ProfesorID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<double>("TotalHoras")
-                        .HasColumnType("REAL");
-
-                    b.HasKey("RegistroID");
-
-                    b.HasIndex("ProfesorID");
-
-                    b.ToTable("HorasLaborales");
-                });
-
             modelBuilder.Entity("GestionDeAsistencia.Modelos.Rol", b =>
                 {
                     b.Property<int>("RolID")
@@ -81,7 +53,6 @@ namespace GestionDeAsistencia.Data.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Descripcion")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<string>("NombreRol")
@@ -134,17 +105,6 @@ namespace GestionDeAsistencia.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Usuario");
-                });
-
-            modelBuilder.Entity("GestionDeAsistencia.Modelos.HorasLaborales", b =>
-                {
-                    b.HasOne("GestionDeAsistencia.Modelos.Usuario", "Profesor")
-                        .WithMany()
-                        .HasForeignKey("ProfesorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Profesor");
                 });
 
             modelBuilder.Entity("GestionDeAsistencia.Modelos.Usuario", b =>

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UsuarioService } from '../servicios/usuario.service';
 import { AsistenciaService } from '../servicios/asistencia.service';
-import { HorasLaboralesService } from '../servicios/horas-laborales.service';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-admin',
@@ -10,191 +10,183 @@ import { HorasLaboralesService } from '../servicios/horas-laborales.service';
   styleUrl: './admin.component.css',
 })
 export class AdminComponent implements OnInit {
-  // Listas para mostrar datos
-  usuarios: any[] = [];
-  roles: any[] = [];
-  registrosAsistencia: any[] = [];
-  registrosHoras: any[] = [];
+  // Listas para mostrar en el panel
+  usuarios = [];
+  roles = [];
+  registrosAsistencia = [];
 
-  // Campos para crear usuario
-  nombre: string = '';
-  apellido: string = '';
-  email: string = '';
-  rol: number = 0;
+  // Formularios para crear y editar usuario
+  crearUsuarioFormulario: FormGroup;
+  editarUsuarioFormulario: FormGroup;
 
-  // Usuario a editar
-  usuarioEditar: any = null;
+  // Usuario seleccionado para editar
+  usuarioEditar = null;
 
   // Filtros para registros
-  selectedUsuarioFilter: number | null = null;
-  selectedFechaFilter: string = '';
+  usuariosSeleccionadosFiltro = null;
+  fechaSeleccionadaFiltro = '';
 
-  // Mensajes y tipo de alerta
-  mensaje: string = '';
-  mensajeTipo = 'exito';
+  mensaje = '';
 
-  usuarioSelccionadoAEliminarID: number = 0;
+  // ID del usuario seleccionado para eliminar
+  usuarioSelccionadoAEliminarID = 0;
 
   constructor(
     private usuarioService: UsuarioService,
     private asistenciaService: AsistenciaService,
-    private horasLaboralesService: HorasLaboralesService
+    private fb: FormBuilder
   ) {}
 
   ngOnInit(): void {
     this.traerUsuarios();
     this.traeRoles();
     this.filtrarRegistros();
+
+    // Inicializa el formulario para crear usuario
+    this.crearUsuarioFormulario = this.fb.group({
+      nombre: ['', Validators.required],
+      apellido: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      rol: [0, Validators.required],
+    });
+    // Inicializa el formulario para editar usuario
+    this.editarUsuarioFormulario = this.fb.group({
+      nombre: ['', Validators.required],
+      apellido: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      rol: [0, Validators.required],
+    });
   }
 
-  // Traer todos los usuarios
-  traerUsuarios(): void {
+  // Trae todos los usuarios del servicio
+  traerUsuarios() {
     this.usuarioService.traerUsuarios().subscribe({
       next: (data) => (this.usuarios = data),
       error: (err) => console.error('Error para traer usuarios', err),
     });
   }
 
-  // Traer roles disponibles
-  traeRoles(): void {
+  // Trae todos los roles disponibles del servicio
+  traeRoles() {
     this.usuarioService.traerRoles().subscribe({
       next: (data) => (this.roles = data),
       error: (err) => console.error('Error al traer roles', err),
     });
   }
 
-  // Crear un nuevo usuario
+  // Crea un nuevo usuario usando los datos del formulario reactivo
   crearUsuario(): void {
-    if (!this.nombre || !this.email || !this.rol || !this.apellido) {
+    if (this.crearUsuarioFormulario.invalid) {
       this.mensaje = 'Todos los campos son obligatorios';
-      this.mensajeTipo = 'error';
       return;
     }
-
     const nuevoUsuario = {
-      nombre: this.nombre,
-      apellido: this.apellido,
-      email: this.email,
-      rolID: this.rol,
+      nombre: this.crearUsuarioFormulario.value.nombre,
+      apellido: this.crearUsuarioFormulario.value.apellido,
+      email: this.crearUsuarioFormulario.value.email,
+      rolID: this.crearUsuarioFormulario.value.rol,
     };
 
     this.usuarioService.crearUsuario(nuevoUsuario).subscribe({
       next: (data) => {
         this.mensaje = 'Usuario creado exitosamente';
-        this.mensajeTipo = 'exito';
         this.traerUsuarios();
-        // Limpiar el formulario
-        this.nombre = '';
-        this.email = '';
-        this.apellido = '';
-        this.rol = 0;
+        this.crearUsuarioFormulario.reset();
       },
       error: (err) => {
         this.mensaje = err.error?.mensaje || 'Error al crear usuario';
-        this.mensajeTipo = 'error';
         console.error(err);
       },
     });
   }
 
-  // Seleccionar usuario para editar
-  editarUsuario(usuario: any): void {
+  // Selecciona un usuario para editar y carga sus datos en el formulario reactivo de edición
+  editarUsuario(usuario: any) {
     this.usuarioEditar = { ...usuario };
+    this.editarUsuarioFormulario.patchValue({
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      email: usuario.email,
+      rol: usuario.rolID,
+    });
   }
 
-  // Actualizar usuario
-  actualizarUsuario(): void {
-    if (!this.usuarioEditar) {
-      return;
-    }
+  // Actualiza el usuario con los datos del formulario reactivo de edición
+  actualizarUsuario() {
+    if (!this.usuarioEditar) return;
+    const usuarioActualizado = {
+      ...this.usuarioEditar,
+      ...this.editarUsuarioFormulario.value,
+      rolID: this.editarUsuarioFormulario.value.rol,
+    };
     this.usuarioService
-      .actualizarUsuario(this.usuarioEditar.usuarioID, this.usuarioEditar)
+      .actualizarUsuario(this.usuarioEditar.usuarioID, usuarioActualizado)
       .subscribe({
         next: () => {
           this.mensaje = 'Usuario actualizado exitosamente';
-          this.mensajeTipo = 'exito';
           this.traerUsuarios();
         },
         error: (err) => {
           this.mensaje = err.error?.mensaje || 'Error al actualizar usuario';
-          this.mensajeTipo = 'error';
           console.error(err);
         },
       });
   }
 
-  // Eliminar usuario
-  eliminarUsuario(id: number): void {
+  // Elimina un usuario por su ID
+  eliminarUsuario(id: number) {
     this.usuarioService.eliminarUsuario(id).subscribe({
       next: () => {
         this.mensaje = 'Usuario eliminado exitosamente';
-        this.mensajeTipo = 'exito';
         this.traerUsuarios();
       },
       error: (err) => {
         this.mensaje = err.error?.mensaje || 'Error al eliminar usuario';
-        this.mensajeTipo = 'error';
         console.error(err);
       },
     });
   }
 
-  // Filtrar registros de asistencia y horas laborales
-  filtrarRegistros(): void {
-    // Convertir el filtro de fecha a Date (si se seleccionó)
-    const fechaFiltro = this.selectedFechaFilter
-      ? new Date(this.selectedFechaFilter)
-      : null;
-    const usuarioFiltro = this.selectedUsuarioFilter;
+  // Filtra los registros de asistencia según usuario y fecha
+  filtrarRegistros() {
+    let fechaFiltro = null;
 
-    // Filtrar asistencias
+    if (this.fechaSeleccionadaFiltro) {
+      fechaFiltro = new Date(this.fechaSeleccionadaFiltro);
+    }
+
+    const usuarioFiltro = this.usuariosSeleccionadosFiltro;
+
     this.asistenciaService
       .obtenerAsistencias({ usuarioID: usuarioFiltro, fecha: fechaFiltro })
       .subscribe({
         next: (data) => {
+          // Formatea cada registro para mostrar fecha y hora en el correcto formato.
           this.registrosAsistencia = data.map((item) => ({
             fecha: new Date(item.fechaHora).toLocaleDateString(),
             hora: new Date(item.fechaHora).toLocaleTimeString(),
             tipo: item.tipo,
-            usuario: item.usuario, // Se espera que el objeto de usuario venga anidado
+            usuario: item.usuario,
           }));
         },
-        error: (err) => console.error('Error fetching asistencias', err),
-      });
-
-    // Filtrar horas laborales
-    this.horasLaboralesService
-      .obtenerHorasLaborales(usuarioFiltro, fechaFiltro)
-      .subscribe({
-        next: (data) => {
-          this.registrosHoras = data.map((item) => ({
-            fecha: new Date(item.fecha).toLocaleDateString(),
-            horaInicio: new Date(item.horaInicio).toLocaleTimeString(),
-            horaFin: new Date(item.horaFin).toLocaleTimeString(),
-            usuario: item.profesor, // Se espera que el objeto de usuario venga anidado
-          }));
-        },
-        error: (err) => console.error('Error fetching horas laborales', err),
       });
   }
 
-  usuarioAEliminarID(id): void {
+  usuarioAEliminarID(id: number) {
     this.usuarioSelccionadoAEliminarID = id;
   }
 
-  confirmarEliminarUsuario(): void {
+  // Confirma y elimina el usuario seleccionado
+  confirmarEliminarUsuario() {
     this.usuarioService
       .eliminarUsuario(this.usuarioSelccionadoAEliminarID)
       .subscribe({
         next: () => {
           this.mensaje = 'Usuario eliminado exitosamente';
-          this.mensajeTipo = 'exito';
           this.traerUsuarios();
         },
         error: (err) => {
-          this.mensaje = err.error?.mensaje || 'Error al eliminar usuario';
-          this.mensajeTipo = 'error';
-          console.error(err);
+          this.mensaje = 'Error al eliminar usuario';
         },
       });
   }

@@ -72,7 +72,7 @@ namespace GestionDeAsistencia.Controllers
                 return NotFound(new { Mensaje = "Usuario no encontrado" });
             }
 
-            // Actualizar solo las propiedades que se han enviado 
+            // Actualizar solo las propiedades que se han enviado
             if(!string.IsNullOrEmpty(dto.Nombre))
             {
                 usuarioExistente.Nombre = dto.Nombre;
@@ -97,7 +97,7 @@ namespace GestionDeAsistencia.Controllers
             {
                 await _contexto.SaveChangesAsync();
             }
-            catch(DbUpdateConcurrencyException)
+            catch(Exception)
             {
                 if(await _contexto.Usuarios.FindAsync(id) == null)
                 {

@@ -2,10 +2,8 @@
 using GestionDeAsistencia.Dtos.Login;
 using GestionDeAsistencia.Dtos.Usuario;
 using GestionDeAsistencia.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -16,9 +14,9 @@ namespace GestionDeAsistencia.Controllers
     public class AutenticacionController : ControllerBase
     {
         private GestionAsistenciaContext _context;
-        private readonly JwtService _jwtService;
+        private readonly JwtServicio _jwtService;
 
-        public AutenticacionController(GestionAsistenciaContext context, JwtService jwtService)
+        public AutenticacionController(GestionAsistenciaContext context, JwtServicio jwtService)
         {
             _context = context;
             _jwtService = jwtService;
@@ -38,27 +36,8 @@ namespace GestionDeAsistencia.Controllers
             }
         }
 
-        [Authorize]
-        [HttpGet]
-        public async Task<ActionResult<UsuarioDto>> ObtenerUsuarioActual()
-        {
-            var email = User.FindFirstValue(ClaimTypes.Email);
-            var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Email == email);
-
-            var usuarioDto = new UsuarioDto
-            {
-                UsuarioID = usuario.UsuarioID,
-                Nombre = usuario.Nombre,
-                Email = usuario.Email,
-                Rol = usuario.Rol.NombreRol,
-                Token = _jwtService.GenerarToken(usuario.Email, usuario.UsuarioID, usuario.Rol.NombreRol)
-            };
-
-            return usuarioDto;
-        }
-
-        [HttpPost("login")]
-        public async Task<ActionResult<UsuarioDto>> Login([FromBody] LoginDto login)
+        [HttpPost("inicioSesion")]
+        public async Task<ActionResult<UsuarioDto>> Login([FromBody] InicioSesionDto login)
         {
             var hashedContrasena = HashContrasena(login.Contrasena);
             var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Email == login.Email && u.Contraseña == hashedContrasena);

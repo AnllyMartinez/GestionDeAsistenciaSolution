@@ -28,7 +28,7 @@ namespace GestionDeAsistencia.Controllers
         {
             var rol = await _contexto.Roles.FindAsync(id);
             if(rol == null)
-                return NotFound("Rol no encontrado");
+                return NotFound(new { Mensaje = "Rol no encontrado" });
             return Ok(rol);
         }
 
@@ -47,7 +47,7 @@ namespace GestionDeAsistencia.Controllers
         public async Task<IActionResult> ActualizarRol(int id, [FromBody] Rol rol)
         {
             if(id != rol.RolID)
-                return BadRequest("El ID no coincide");
+                return BadRequest(new { Mensaje = "El ID no coincide" });
 
             _contexto.Entry(rol).State = EntityState.Modified;
 
@@ -58,7 +58,7 @@ namespace GestionDeAsistencia.Controllers
             catch(DbUpdateConcurrencyException)
             {
                 if(await _contexto.Roles.FindAsync(id) == null)
-                    return NotFound("Rol no encontrado");
+                    return NotFound(new { Mensaje = "Rol no encontrado" });
                 throw;
             }
 
@@ -70,11 +70,11 @@ namespace GestionDeAsistencia.Controllers
         {
             var rol = await _contexto.Roles.FindAsync(id);
             if(rol == null)
-                return NotFound("Rol no encontrado");
+                return NotFound(new { Mensaje = "Rol no encontrado" });
 
             _contexto.Roles.Remove(rol);
             await _contexto.SaveChangesAsync();
-            return Ok("Rol eliminado");
+            return Ok(new { Mensaje = "Rol eliminado" });
         }
     }
 }

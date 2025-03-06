@@ -18,7 +18,7 @@ namespace GestionDeAsistencia.Data.Migrations
                     RolID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     NombreRol = table.Column<string>(type: "TEXT", nullable: false),
-                    Descripcion = table.Column<string>(type: "TEXT", nullable: false)
+                    Descripcion = table.Column<string>(type: "TEXT", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -70,38 +70,10 @@ namespace GestionDeAsistencia.Data.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "HorasLaborales",
-                columns: table => new
-                {
-                    RegistroID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    ProfesorID = table.Column<int>(type: "INTEGER", nullable: false),
-                    Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    HoraInicio = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    HoraFin = table.Column<DateTime>(type: "TEXT", nullable: false),
-                    TotalHoras = table.Column<double>(type: "REAL", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_HorasLaborales", x => x.RegistroID);
-                    table.ForeignKey(
-                        name: "FK_HorasLaborales_Usuarios_ProfesorID",
-                        column: x => x.ProfesorID,
-                        principalTable: "Usuarios",
-                        principalColumn: "UsuarioID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Asistencias_UsuarioID",
                 table: "Asistencias",
                 column: "UsuarioID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_HorasLaborales_ProfesorID",
-                table: "HorasLaborales",
-                column: "ProfesorID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Usuarios_RolID",
@@ -114,9 +86,6 @@ namespace GestionDeAsistencia.Data.Migrations
         {
             migrationBuilder.DropTable(
                 name: "Asistencias");
-
-            migrationBuilder.DropTable(
-                name: "HorasLaborales");
 
             migrationBuilder.DropTable(
                 name: "Usuarios");

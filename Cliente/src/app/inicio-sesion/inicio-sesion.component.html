@@ -1,38 +1,31 @@
 <div class="horas-laborales-container">
   <h3 class="text-center mb-4">Inicio de Sesión</h3>
-
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+  <form [formGroup]="formularioInicioDeSesion" (ngSubmit)="iniciarSesion()">
+    <!-- Campo de Correo Electrónico -->
     <div class="row justify-content-center mb-4">
       <div class="col-6">
-        <div class="mb-1">
-          <label for="email" class="form-label text-center"
-            >Correo Electrónico:</label
-          >
-          <input
-            id="email"
-            type="email"
-            class="form-control"
-            formControlName="email"
-            [ngClass]="{
-              'is-invalid':
-                loginForm.get('email').invalid &&
-                loginForm.get('email').touched,
-              'is-valid': loginForm.get('email').valid
-            }"
-            required
-          />
-          <div
-            *ngIf="
-              loginForm.get('email').invalid && loginForm.get('email').touched
-            "
-            class="invalid-feedback"
-          >
-            <div *ngIf="loginForm.get('email').errors?.required">
-              El correo electrónico es requerido.
-            </div>
-            <div *ngIf="loginForm.get('email').errors?.email">
-              El correo electrónico no es válido.
-            </div>
+        <label for="email" class="form-label">Correo Electronico:</label>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          formControlName="email"
+          [ngClass]="{
+            'is-invalid':
+              formularioInicioDeSesion.get('email').invalid &&
+              formularioInicioDeSesion.get('email').touched
+          }"
+          required
+        />
+        <div
+          *ngIf="
+            formularioInicioDeSesion.get('email').invalid &&
+            formularioInicioDeSesion.get('email').touched
+          "
+          class="invalid-feedback"
+        >
+          <div *ngIf="formularioInicioDeSesion.get('email').errors?.email">
+            El correo electrónico no es valido
           </div>
         </div>
       </div>
@@ -40,30 +33,27 @@
 
     <div class="row justify-content-center mb-4">
       <div class="col-6">
-        <div class="mb-3">
-          <label for="contraseña" class="form-label">Contraseña:</label>
-          <input
-            id="contraseña"
-            type="password"
-            class="form-control"
-            formControlName="contraseña"
-            [ngClass]="{
-              'is-invalid':
-                loginForm.get('contraseña').invalid &&
-                loginForm.get('contraseña').touched,
-              'is-valid': loginForm.get('contraseña').valid
-            }"
-            required
-          />
-          <div
-            *ngIf="
-              loginForm.get('contraseña').invalid &&
-              loginForm.get('contraseña').touched
-            "
-            class="invalid-feedback"
-          >
-            La contraseña es requerida.
-          </div>
+        <label for="contraseña" class="form-label">Contraseña:</label>
+        <input
+          id="contraseña"
+          type="password"
+          class="form-control"
+          formControlName="contraseña"
+          [ngClass]="{
+            'is-invalid':
+              formularioInicioDeSesion.get('contraseña').invalid &&
+              formularioInicioDeSesion.get('contraseña').touched
+          }"
+          required
+        />
+        <div
+          *ngIf="
+            formularioInicioDeSesion.get('contraseña').invalid &&
+            formularioInicioDeSesion.get('contraseña').touched
+          "
+          class="invalid-feedback"
+        >
+          La contraseña es requerida
         </div>
       </div>
     </div>
@@ -72,15 +62,15 @@
       <button
         type="submit"
         class="btn btn-dark w-50"
-        [disabled]="loginForm.invalid"
+        [disabled]="formularioInicioDeSesion.invalid"
       >
         Iniciar Sesión
       </button>
     </div>
 
-    <div *ngIf="errorMessage" class="mt-3 text-center">
+    <div *ngIf="mensajeError" class="mt-3 text-center">
       <div class="alert alert-danger" role="alert">
-        {{ errorMessage }}
+        {{ mensajeError }}
       </div>
     </div>
   </form>

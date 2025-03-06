@@ -10,33 +10,32 @@ import { Router } from '@angular/router';
   styleUrl: './inicio-sesion.component.css',
 })
 export class InicioSesionComponent {
-  loginForm: FormGroup;
-  errorMessage: string;
+  formularioInicioDeSesion: FormGroup;
+  mensajeError = '';
 
   constructor(
     private fb: FormBuilder,
     private autenticacionService: AutenticacionService,
     private router: Router
   ) {
-    this.loginForm = this.fb.group({
+    // Formulario con dos campos, email y contraseña
+    this.formularioInicioDeSesion = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       contraseña: ['', Validators.required],
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.valid) {
+  iniciarSesion() {
+    if (this.formularioInicioDeSesion.valid) {
       this.autenticacionService
         .iniciarSesion(
-          this.loginForm.value.email,
-          this.loginForm.value.contraseña
+          this.formularioInicioDeSesion.value.email,
+          this.formularioInicioDeSesion.value.contraseña
         )
         .subscribe({
-          next: () => this.router.navigate(['/attendance']),
-          error: () => (this.errorMessage = 'Credenciales inválidas'),
+          next: () => this.router.navigate(['/asistencia']),
+          error: () => (this.mensajeError = 'Credenciales inválidas'),
         });
-    } else {
-      this.loginForm.markAllAsTouched();
     }
   }
 }

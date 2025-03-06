@@ -24,40 +24,22 @@
     <div class="collapse navbar-collapse" id="navbar">
       <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <li class="nav-item">
-          <a
-            class="nav-link"
-            [routerLink]="['/']"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
+          <a class="nav-link" [routerLink]="['/']" routerLinkActive="active"
             >Inicio</a
           >
         </li>
         <li
           class="nav-item"
           *ngIf="
-            (usuarioActual$ | async)?.rol === 'Estudiante' ||
-            (usuarioActual$ | async)?.rol === 'Admin'
+            (usuarioActual | async)?.rol === 'Usuario' ||
+            (usuarioActual | async)?.rol === 'Admin'
           "
         >
           <a class="nav-link" routerLink="/asistencia" routerLinkActive="active"
             >Asistencia</a
           >
         </li>
-        <li
-          class="nav-item"
-          *ngIf="
-            (usuarioActual$ | async)?.rol == 'Profesor' ||
-            (usuarioActual$ | async)?.rol == 'Admin'
-          "
-        >
-          <a
-            class="nav-link"
-            routerLink="/horas-laborales"
-            routerLinkActive="active"
-            >Horas Laborales</a
-          >
-        </li>
-        <li class="nav-item" *ngIf="(usuarioActual$ | async)?.rol == 'Admin'">
+        <li class="nav-item" *ngIf="(usuarioActual | async)?.rol == 'Admin'">
           <a class="nav-link" routerLink="/admin" routerLinkActive="active"
             >Administración</a
           >
@@ -65,18 +47,18 @@
       </ul>
 
       <div class="d-flex align-items-center">
-        <ng-container *ngIf="usuarioActual$ | async">
+        <ng-container *ngIf="usuarioActual | async">
           <div class="dropdown me-3">
             <a
               class="nav-link dropdown-toggle text-muted"
               href="#"
               data-bs-toggle="dropdown"
               aria-expanded="false"
-              >Bienvenid&#64; {{ (usuarioActual$ | async).nombre }}</a
+              >Bienvenid&#64; {{ (usuarioActual | async).nombre }}</a
             >
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="#" (click)="onCerrarSesion()"
+                <a class="dropdown-item" href="#" (click)="cerrarSesion()"
                   >Cerrar sesion</a
                 >
               </li>
@@ -92,7 +74,7 @@
             </ul>
           </div>
         </ng-container>
-        <ng-container *ngIf="(usuarioActual$ | async) === null">
+        <ng-container *ngIf="(usuarioActual | async) === null">
           <button
             type="button"
             class="btn btn-outline-dark"
@@ -125,7 +107,7 @@
         ></button>
       </div>
       <div class="modal-body">
-        <form [formGroup]="cambiarContrasenaForm">
+        <form [formGroup]="cambiarContrasenaFormulario">
           <div class="mb-3">
             <label for="nuevaContrasena" class="form-label"
               >Nueva Contraseña</label
@@ -147,7 +129,7 @@
         <button
           type="button"
           class="btn btn-outline-danger"
-          (click)="onActualizarContrasena()"
+          (click)="actualizarContrasena()"
           data-bs-dismiss="modal"
         >
           Actualizar

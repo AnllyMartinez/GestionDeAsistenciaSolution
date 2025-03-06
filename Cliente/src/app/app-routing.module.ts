@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { AsistenciaComponent } from './asistencia/asistencia.component';
-import { HorasLaboralesComponent } from './horas-laborales/horas-laborales.component';
 import { InicioComponent } from './inicio/inicio.component';
 import { AdminComponent } from './admin/admin.component';
 import { InicioSesionComponent } from './inicio-sesion/inicio-sesion.component';
@@ -18,13 +17,7 @@ const routes: Routes = [
     path: 'asistencia',
     component: AsistenciaComponent,
     canActivate: [AutenticacionGuard],
-    data: { rolEsperado: 'Estudiante' },
-  },
-  {
-    path: 'horas-laborales',
-    component: HorasLaboralesComponent,
-    canActivate: [AutenticacionGuard],
-    data: { rolEsperado: 'Profesor' },
+    data: { rolEsperado: 'Usuario' },
   },
   {
     path: 'admin',
@@ -32,7 +25,6 @@ const routes: Routes = [
     canActivate: [AutenticacionGuard],
     data: { rolEsperado: 'Admin' },
   },
-  { path: '**', redirectTo: '', pathMatch: 'full' },
 ];
 
 @NgModule({

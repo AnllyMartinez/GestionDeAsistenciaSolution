@@ -7,14 +7,12 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<GestionAsistenciaContext>(x => x.UseSqlite(connectionString));
 
-// Configurar autenticación JWT
+// Configuracion autenticación JWT
 var key = Encoding.ASCII.GetBytes(builder.Configuration["Jwt:Key"]);
 builder.Services.AddAuthentication(options =>
 {
@@ -43,9 +41,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-
-
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<JwtServicio>();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

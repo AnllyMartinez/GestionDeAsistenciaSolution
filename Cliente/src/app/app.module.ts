@@ -12,7 +12,6 @@ import { BarraNavegacionComponent } from './barra-navegacion/barra-navegacion.co
 import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { AsistenciaComponent } from './asistencia/asistencia.component';
-import { HorasLaboralesComponent } from './horas-laborales/horas-laborales.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { InicioComponent } from './inicio/inicio.component';
 import { AdminComponent } from './admin/admin.component';
@@ -24,7 +23,6 @@ import { AuthInterceptor } from './interceptor/autenticacion.interceptor';
     AppComponent,
     BarraNavegacionComponent,
     AsistenciaComponent,
-    HorasLaboralesComponent,
     InicioComponent,
     AdminComponent,
     InicioSesionComponent,

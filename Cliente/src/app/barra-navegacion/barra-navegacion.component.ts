@@ -10,40 +10,48 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrl: './barra-navegacion.component.css',
 })
 export class BarraNavegacionComponent implements OnInit {
-  usuarioActual$: Observable<any>;
-  cambiarContrasenaForm: FormGroup;
-  errorMensaje: string;
+  // Observable que contiene la información del usuario actual
+  usuarioActual: Observable<any>;
+
+  cambiarContrasenaFormulario: FormGroup;
+  errorMensaje = '';
 
   constructor(
     private autenticacionService: AutenticacionService,
     private fb: FormBuilder
   ) {}
+
   ngOnInit(): void {
-    this.usuarioActual$ = this.autenticacionService.usuarioActual$;
-    this.cambiarContrasenaForm = this.fb.group({
+    // Se suscribe al observable del usuario actual del servicio de autenticacion
+    this.usuarioActual = this.autenticacionService.usuarioActual;
+
+    // Se crea el formulario para cambiar contraseña
+    this.cambiarContrasenaFormulario = this.fb.group({
       nuevaContrasena: ['', Validators.required],
     });
   }
 
-  onCerrarSesion(): void {
+  cerrarSesion(): void {
     this.autenticacionService.cerrarSesion();
   }
 
-  onActualizarContrasena(): void {
-    if (this.cambiarContrasenaForm.valid) {
+  actualizarContrasena(): void {
+    if (this.cambiarContrasenaFormulario.valid) {
+      // Se obtiene la nueva contraseña del formulario
       const nuevaContrasena =
-        this.cambiarContrasenaForm.get('nuevaContrasena')?.value;
+        this.cambiarContrasenaFormulario.get('nuevaContrasena')?.value;
 
+      // Servicio para actualizar la contraseña
       this.autenticacionService
         .actualizarContrasena(nuevaContrasena)
         .subscribe({
-          next: (response) => {
-            this.cambiarContrasenaForm.reset();
+          next: () => {
+            this.cambiarContrasenaFormulario.reset();
             this.errorMensaje = '';
           },
-          error: (error) => {
+          error: () => {
             this.errorMensaje =
-              'Error al actualizar la contraseña. Por favor, inténtalo de nuevo.';
+              'Error al actualizar la contraseña. Por favor, intentalo de nuevo';
           },
         });
     }

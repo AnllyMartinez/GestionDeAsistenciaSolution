@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { AsistenciaService } from '../servicios/asistencia.service';
 import { AutenticacionService } from '../servicios/autenticacion.service';
 import { Subscription } from 'rxjs';
@@ -9,13 +9,11 @@ import { Subscription } from 'rxjs';
   templateUrl: './asistencia.component.html',
   styleUrl: './asistencia.component.css',
 })
-export class AsistenciaComponent {
-  mensaje: string = '';
-  historialAsistencia: any[] = [];
-  usuarioActualId: number = 0;
-  private autenticacionSub: Subscription;
-
-  mensajeTipo = 'exito';
+export class AsistenciaComponent implements OnInit {
+  // Mensaje para notificaciones (exito o error)
+  mensaje = '';
+  // Historial de asistencias del usuario
+  historialAsistencia = [];
 
   constructor(
     private asistenciaService: AsistenciaService,
@@ -23,34 +21,31 @@ export class AsistenciaComponent {
   ) {}
 
   ngOnInit(): void {
-    this.autenticacionSub = this.autenticacionService.usuarioActual$.subscribe({
-      next: (usuario) => {
-        if (usuario) {
-          this.usuarioActualId = usuario.usuarioID;
-          this.cargarHistorial();
-        } else {
-          this.usuarioActualId = null;
-          this.historialAsistencia = [];
-        }
-      },
-      error: (err) =>
-        console.error('Error en suscripción de autenticación:', err),
-    });
+    this.cargarHistorial();
   }
 
+  // Carga el historial de asistencias del usuario actual.
   cargarHistorial(): void {
+    let idUsuarioActual = this.autenticacionService.obtenerUsuarioID();
+
     this.asistenciaService
-      .obtenerAsistencias({ usuarioID: this.usuarioActualId })
+      .obtenerAsistencias({ usuarioID: idUsuarioActual })
       .subscribe({
         next: (data) => {
-          this.historialAsistencia = data.map((item) => ({
-            ...item,
-            fecha: new Date(item.fechaHora).toLocaleDateString(),
-            hora: new Date(item.fechaHora).toLocaleTimeString(),
-          }));
+          // Se mapea cada asistencia para formatear la fecha y la hora
+          this.historialAsistencia = data.map((item) => {
+            const fechaHora = new Date(item.fechaHora);
+            return {
+              ...item,
+              fecha: fechaHora.toLocaleDateString(),
+              hora: fechaHora.toLocaleTimeString(),
+            };
+          });
         },
         error: (err) => {
+          // Se muestra un mensaje de error si ocurre un problema al cargar el historial
           this.mensaje = 'Error al cargar el historial';
+
           console.error(err);
         },
       });
@@ -65,23 +60,23 @@ export class AsistenciaComponent {
   }
 
   private registrarAsistencia(tipo: string): void {
+    let idUsuarioActual = this.autenticacionService.obtenerUsuarioID();
+
+    // Datos que se enviarán a la API
     const data = {
-      UsuarioID: this.usuarioActualId,
+      UsuarioID: idUsuarioActual,
       Tipo: tipo,
-      RegistradoPor: this.usuarioActualId,
+      RegistradoPor: idUsuarioActual,
     };
 
     this.asistenciaService.registrarAsistencia(data).subscribe({
       next: (res) => {
+        // Actualiza el historial despues de registrar la asistencia
         this.cargarHistorial();
-        this.mensajeTipo = 'exito';
         this.mensaje = res.mensaje;
-        setTimeout(() => (this.mensaje = ''), 3000);
       },
       error: (err) => {
-        this.mensajeTipo = 'error';
-        this.mensaje =
-          err.error?.mensaje || `Error al registrar ${tipo.toLowerCase()}`;
+        this.mensaje = err.error?.mensaje || `Error al registrar ${tipo}`;
         console.error(err);
       },
     });

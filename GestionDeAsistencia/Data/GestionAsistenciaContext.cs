@@ -13,6 +13,5 @@ namespace GestionDeAsistencia.Data
         public DbSet<Usuario> Usuarios { get; set; }
         public DbSet<Rol> Roles { get; set; }
         public DbSet<Asistencia> Asistencias { get; set; }
-        public DbSet<HorasLaborales> HorasLaborales { get; set; }
     }
 }

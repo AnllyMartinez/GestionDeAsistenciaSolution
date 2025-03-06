@@ -5,19 +5,19 @@ using System.Text;
 
 namespace GestionDeAsistencia.Services
 {
-    public class JwtService
+    public class JwtServicio
     {
-        private readonly string _secret;
+        private readonly string _secreto;
 
-        public JwtService(IConfiguration configuration)
+        public JwtServicio(IConfiguration configuration)
         {
-            _secret = configuration["Jwt:Key"];
+            _secreto = configuration["Jwt:Key"];
         }
 
         public string GenerarToken(string email, int userId, string role)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_secret);
+            var key = Encoding.UTF8.GetBytes(_secreto);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(new[]
@@ -26,7 +26,7 @@ namespace GestionDeAsistencia.Services
                     new Claim("UsuarioID", userId.ToString()),
                     new Claim(ClaimTypes.Role, role)
                 }),
-                Expires = DateTime.UtcNow.AddDays(2),
+                Expires = DateTime.UtcNow.AddDays(3),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);

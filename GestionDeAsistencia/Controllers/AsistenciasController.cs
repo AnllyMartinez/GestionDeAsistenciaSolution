@@ -20,7 +20,6 @@ namespace GestionDeAsistencia.Controllers
         [HttpPost("registrar")]
         public async Task<IActionResult> RegistrarAsistencia([FromBody] RegistrarAsistenciaDto request)
         {
-
             var hoy = DateTime.Now.Date;
 
             // Verificar si ya existe una asistencia del mismo tipo en el mismo día
@@ -72,20 +71,6 @@ namespace GestionDeAsistencia.Controllers
             if(asistencia == null)
                 return NotFound("Asistencia no encontrada");
             return Ok(asistencia);
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> ActualizarAsistencia(int id, [FromBody] RegistrarAsistenciaDto request)
-        {
-            var asistencia = await _context.Asistencias.FindAsync(id);
-            if(asistencia == null)
-                return NotFound("Asistencia no encontrada");
-
-            asistencia.UsuarioID = request.UsuarioID;
-            asistencia.Tipo = request.Tipo;
-
-            await _context.SaveChangesAsync();
-            return Ok("Asistencia actualizada");
         }
 
         [HttpDelete("{id}")]

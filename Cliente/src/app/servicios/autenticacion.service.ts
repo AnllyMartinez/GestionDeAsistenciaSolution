@@ -1,7 +1,8 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, map, Observable, of, ReplaySubject, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of, ReplaySubject } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
 
 @Injectable({
@@ -9,42 +10,21 @@ import { jwtDecode } from 'jwt-decode';
 })
 export class AutenticacionService {
   private authUrl = 'https://localhost:5001/api/Autenticacion';
-  public inicioSesion = new BehaviorSubject<boolean>(false);
+
+  // Almacena el usuario actual y permite que nuevos suscriptores reciban el ultimo valor emitido
   private usuarioActualSource = new ReplaySubject<any>(1);
-  usuarioActual$ = this.usuarioActualSource.asObservable();
-  private usuarioActualId?: number;
+  // Observable al que pueden suscribirse otros componentes para conocer el usuario actual
+  usuarioActual = this.usuarioActualSource.asObservable();
 
-  constructor(private http: HttpClient, private router: Router) {
-    const token = localStorage.getItem('token');
-    this.inicioSesion.next(!!token);
-  }
-
-  cargarUsuarioActual(token) {
-    if (token === null) {
-      this.usuarioActualSource.next(null);
-      return of(null);
-    }
-    let headers = new HttpHeaders();
-    headers = headers.set('Authorization', `Bearer ${token}`);
-
-    return this.http.get(this.authUrl, { headers }).pipe(
-      map((usuario: any) => {
-        if (usuario) {
-          localStorage.setItem('token', usuario.token);
-          this.usuarioActualSource.next(usuario);
-        }
-      })
-    );
-  }
+  constructor(private http: HttpClient, private router: Router) {}
 
   iniciarSesion(email: string, contrasena: string): Observable<any> {
     return this.http
-      .post<any>(`${this.authUrl}/login`, { email, contrasena })
+      .post<any>(`${this.authUrl}/inicioSesion`, { email, contrasena })
       .pipe(
         tap((respuesta) => {
           localStorage.setItem('token', respuesta.token);
-          this.usuarioActualId = respuesta.usuarioID;
-          this.inicioSesion.next(true);
+          // Se emite la respuesta (usuario) a los suscriptores
           this.usuarioActualSource.next(respuesta);
         })
       );
@@ -52,8 +32,7 @@ export class AutenticacionService {
 
   cerrarSesion() {
     localStorage.removeItem('token');
-    this.inicioSesion.next(false);
-    this.usuarioActualSource.next(false);
+    this.usuarioActualSource.next(null);
     this.router.navigate(['/inicio-sesion']);
   }
 
@@ -62,13 +41,17 @@ export class AutenticacionService {
   }
 
   obtenerUsuarioID() {
-    return this.usuarioActualId;
+    const token = this.obtenerToken();
+    if (token) {
+      const decodedToken: any = jwtDecode(token);
+      return decodedToken.UsuarioID;
+    }
+    return null;
   }
 
   obtenerUsuarioRol(): string | null {
     const token = this.obtenerToken();
     if (token) {
-      // Decodificar el token para extraer el rol
       const decodedToken: any = jwtDecode(token);
       return decodedToken.role;
     }
@@ -77,7 +60,6 @@ export class AutenticacionService {
 
   actualizarContrasena(nuevaContrasena: string) {
     const usuarioActual = this.obtenerUsuarioID();
-
     return this.http.put<any>(
       `${this.authUrl}/actualizarContrasena/${usuarioActual}`,
       { nuevaContrasena }
