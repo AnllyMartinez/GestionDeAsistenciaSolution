@@ -10,15 +10,11 @@ export class AsistenciaService {
 
   constructor(private http: HttpClient) {}
 
-  registrarAsistencia(data: {
-    UsuarioID: number;
-    Tipo: string;
-    RegistradoPor: number;
-  }) {
+  registrarAsistencia(data) {
     return this.http.post<any>(`${this.apiUrl}/registrar`, data);
   }
 
-  obtenerAsistencias(filtro?: { usuarioID?: number; fecha?: Date }) {
+  obtenerAsistencias(filtro?: { usuarioID?; fecha? }) {
     let params = new HttpParams();
 
     if (filtro) {
@@ -32,13 +28,7 @@ export class AsistenciaService {
     return this.http.get<any[]>(this.apiUrl, { params });
   }
 
-  actualizarAsistencia(
-    id: number,
-    data: {
-      UsuarioID: number;
-      Tipo: string;
-    }
-  ) {
+  actualizarAsistencia(id, data) {
     return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }
 

@@ -20,12 +20,12 @@ export class AsistenciaComponent implements OnInit {
     private autenticacionService: AutenticacionService
   ) {}
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.cargarHistorial();
   }
 
   // Carga el historial de asistencias del usuario actual.
-  cargarHistorial(): void {
+  cargarHistorial() {
     let idUsuarioActual = this.autenticacionService.obtenerUsuarioID();
 
     this.asistenciaService
@@ -45,21 +45,19 @@ export class AsistenciaComponent implements OnInit {
         error: (err) => {
           // Se muestra un mensaje de error si ocurre un problema al cargar el historial
           this.mensaje = 'Error al cargar el historial';
-
-          console.error(err);
         },
       });
   }
 
-  registrarEntrada(): void {
+  registrarEntrada() {
     this.registrarAsistencia('Entrada');
   }
 
-  registrarSalida(): void {
+  registrarSalida() {
     this.registrarAsistencia('Salida');
   }
 
-  private registrarAsistencia(tipo: string): void {
+  private registrarAsistencia(tipo) {
     let idUsuarioActual = this.autenticacionService.obtenerUsuarioID();
 
     // Datos que se enviarán a la API
