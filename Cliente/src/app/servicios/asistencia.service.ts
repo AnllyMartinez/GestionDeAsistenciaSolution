@@ -14,14 +14,11 @@ export class AsistenciaService {
     UsuarioID: number;
     Tipo: string;
     RegistradoPor: number;
-  }): Observable<any> {
+  }) {
     return this.http.post<any>(`${this.apiUrl}/registrar`, data);
   }
 
-  obtenerAsistencias(filtro?: {
-    usuarioID?: number;
-    fecha?: Date;
-  }): Observable<any[]> {
+  obtenerAsistencias(filtro?: { usuarioID?: number; fecha?: Date }) {
     let params = new HttpParams();
 
     if (filtro) {
@@ -41,11 +38,11 @@ export class AsistenciaService {
       UsuarioID: number;
       Tipo: string;
     }
-  ): Observable<any> {
+  ) {
     return this.http.put<any>(`${this.apiUrl}/${id}`, data);
   }
 
-  eliminarAsistencia(id: number): Observable<any> {
+  eliminarAsistencia(id: number) {
     return this.http.delete<any>(`${this.apiUrl}/${id}`);
   }
 }

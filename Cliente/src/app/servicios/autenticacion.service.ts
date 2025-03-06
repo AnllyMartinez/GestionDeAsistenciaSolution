@@ -18,7 +18,7 @@ export class AutenticacionService {
 
   constructor(private http: HttpClient, private router: Router) {}
 
-  iniciarSesion(email: string, contrasena: string): Observable<any> {
+  iniciarSesion(email: string, contrasena: string) {
     return this.http
       .post<any>(`${this.authUrl}/inicioSesion`, { email, contrasena })
       .pipe(
@@ -49,7 +49,7 @@ export class AutenticacionService {
     return null;
   }
 
-  obtenerUsuarioRol(): string | null {
+  obtenerUsuarioRol() {
     const token = this.obtenerToken();
     if (token) {
       const decodedToken: any = jwtDecode(token);

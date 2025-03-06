@@ -4,10 +4,9 @@ import { CanActivate } from '@angular/router';
 import { AutenticacionService } from './autenticacion.service';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AutenticacionGuard implements CanActivate {
-  
   constructor(
     private autenticacionServicio: AutenticacionService,
     private router: Router
@@ -15,7 +14,6 @@ export class AutenticacionGuard implements CanActivate {
 
   // Determina si se permite o no el acceso a una ruta
   canActivate(route: ActivatedRouteSnapshot): boolean {
-    
     if (!this.autenticacionServicio.obtenerToken()) {
       this.router.navigate(['/inicio-sesion']);
       return false;
