@@ -39,6 +39,8 @@ export class AsistenciaComponent implements OnInit {
               ...item,
               fecha: fechaHora.toLocaleDateString(),
               hora: fechaHora.toLocaleTimeString(),
+
+              
             };
           });
         },

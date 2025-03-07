@@ -1,6 +1,7 @@
 ﻿using GestionDeAsistencia.Data;
 using GestionDeAsistencia.Dtos.Asistencia;
 using GestionDeAsistencia.Modelos;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,6 +9,7 @@ namespace GestionDeAsistencia.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class AsistenciasController : ControllerBase
     {
         private readonly GestionAsistenciaContext _context;

@@ -2,8 +2,10 @@
 using GestionDeAsistencia.Dtos.Login;
 using GestionDeAsistencia.Dtos.Usuario;
 using GestionDeAsistencia.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -59,6 +61,7 @@ namespace GestionDeAsistencia.Controllers
             return Ok(usuarioDto);
         }
 
+        [Authorize]
         [HttpPut("actualizarContrasena/{id}")]
         public async Task<IActionResult> ActualizarPassword(int id, [FromBody] ActualizarContrasenaDto dto)
         {
@@ -72,6 +75,25 @@ namespace GestionDeAsistencia.Controllers
             await _context.SaveChangesAsync();
 
             return Ok(new { Mensaje = "Contraseña actualizada exitosamente" });
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<UsuarioDto>> ObtenerUsuarioActual()
+        {
+            var email = User.FindFirstValue(ClaimTypes.Email);
+            var usuario = await _context.Usuarios.Include(u => u.Rol).FirstOrDefaultAsync(u => u.Email == email);
+
+            var usuarioDto = new UsuarioDto
+            {
+                UsuarioID = usuario.UsuarioID,
+                Nombre = usuario.Nombre,
+                Email = usuario.Email,
+                Rol = usuario.Rol.NombreRol,
+                Token = _jwtService.GenerarToken(usuario.Email, usuario.UsuarioID, usuario.Rol.NombreRol)
+            };
+
+            return usuarioDto;
         }
     }
 }

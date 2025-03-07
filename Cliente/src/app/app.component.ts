@@ -7,5 +7,16 @@ import { AutenticacionService } from './servicios/autenticacion.service';
   standalone: false,
   styleUrl: './app.component.css',
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  constructor(private autenticacionService: AutenticacionService) {}
+
+  ngOnInit() {
+    this.cargarUsuarioActual();
+  }
+
+  cargarUsuarioActual() {
+    const token = localStorage.getItem('token');
+
+    this.autenticacionService.cargarUsuarioActual(token).subscribe(() => {});
+  }
 }

@@ -9,7 +9,11 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { BarraNavegacionComponent } from './barra-navegacion/barra-navegacion.component';
-import { HTTP_INTERCEPTORS, provideHttpClient } from '@angular/common/http';
+import {
+  HTTP_INTERCEPTORS,
+  provideHttpClient,
+  withInterceptorsFromDi,
+} from '@angular/common/http';
 import { CollapseModule } from 'ngx-bootstrap/collapse';
 import { AsistenciaComponent } from './asistencia/asistencia.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -37,7 +41,7 @@ import { AuthInterceptor } from './interceptor/autenticacion.interceptor';
   ],
   providers: [
     provideClientHydration(withEventReplay()),
-    provideHttpClient(),
+    provideHttpClient(withInterceptorsFromDi()),
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,

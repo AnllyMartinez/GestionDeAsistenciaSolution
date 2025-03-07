@@ -30,6 +30,22 @@ export class AutenticacionService {
       );
   }
 
+  cargarUsuarioActual(token) {
+    if (token === null) {
+      this.usuarioActualSource.next(null);
+      return of(null);
+    }
+
+    return this.http.get(this.authUrl).pipe(
+      map((usuario: any) => {
+        if (usuario) {
+          localStorage.setItem('token', usuario.token);
+          this.usuarioActualSource.next(usuario);
+        }
+      })
+    );
+  }
+
   cerrarSesion() {
     localStorage.removeItem('token');
     this.usuarioActualSource.next(null);
